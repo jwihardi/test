@@ -1,2 +1,3 @@
 *.html linguist-vendored
 *.Rmd linguist-language=R
+*.m linguist-language=MATLAB
