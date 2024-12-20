@@ -1,2 +1,3 @@
 *.pdf linguist-documentation
+*.html linguist-documentation
 *.Rmd linguist-language=R
