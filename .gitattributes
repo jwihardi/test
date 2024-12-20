@@ -1,2 +1,2 @@
-*.pdf linguist-vendored
+*.html linguist-vendored
 *.Rmd linguist-language=R
