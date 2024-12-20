@@ -1,0 +1,576 @@
+---
+title: "Distributions: Discrete and Continuous"
+author: " Your Name and id"
+output:
+  html_document:
+    number_sections: yes    
+    toc: yes
+  pdf_document:
+    toc: yes
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+This project will help us visualize various functions attached to the different distributions learned in class.
+
+# Binomial distribution.
+
+## Probability Mass Function
+
+We will plot the probability mass function for the binomial distribution Bin(n, p).
+Note: 1) The values for this random variable are 0, 1, 2, ..., n.
+2) The density plot will have a bar of height P(X=k), at the point 'k' on the x-axis.
+3) In the plot include a vertical line at the expected value of Bin(n,p).
+
+Write a function plot_binom, that takes input values: n and p, and returns the density plot of Bin(n,p).
+
+```{r}
+plot_binom_pmf <- function(n, p) {
+  x <- 0:n
+  binomvals <- dbinom(x, size = n, prob = p)
+  plot(x, binomvals, type = "h", lwd = 5,
+       main = paste("Binomial density for", p),
+       xlab = "x", ylab = "P(X=x)")
+  abline(v = n * p, col = 'red', lwd = 4)  
+}
+
+
+
+```
+
+Fix n = 40.
+Compute plots of the pmf for the following values of p: 0.05, 0.1, 0.4, 0.6, 0.9, 0.95.
+Have all the plots on the same frame.
+
+```{r}
+par(mfrow = c(2, 3))  
+
+plot_binom_pmf(40, 0.05)
+plot_binom_pmf(40, 0.1)
+plot_binom_pmf(40, 0.4)
+plot_binom_pmf(40, 0.6)
+plot_binom_pmf(40, 0.9)
+plot_binom_pmf(40, 0.95)
+
+
+```
+
+What do you notice about the shape of the plots?
+Consider skewness and symmetry.
+YOUR ANSWER:
+
+## Cumulative Distribution Functions
+
+Write a function to plot the cumulative distribution function of the Binomial random variable, call it 'plot_binom_cdf'.
+
+```{r}
+plot_binom_cdf <- function(n = 40) {
+  p_values <- c(0.05, 0.1, 0.4, 0.6, 0.9, 0.95)  
+  x <- 0:n  
+  colors <- rainbow(length(p_values))  
+
+  plot(x, pbinom(x, size = n, prob = p_values[1]), type = "s", lwd = 2,
+       col = colors[1], ylim = c(0, 1),
+       main = paste("CDF of Binomial Distribution (n =", n, ")"),
+       xlab = "x", ylab = "P(X ≤ x)")
+
+  for (i in 2:length(p_values)) {
+    lines(x, pbinom(x, size = n, prob = p_values[i]), type = "s", col = colors[i], lwd = 2)
+  }
+  abline(h = 0.8, col = "red", lty = "dotted", lwd = 2)
+  
+}
+
+plot_binom_cdf(40)
+
+
+```
+
+Fix n = 40.
+Compute plots of the of the graphs cdf for the following values of p: 0.05, 0.1, 0.4, 0.6, 0.9, 0.95.
+Have all graphs on the same plot (with different colors).
+Draw a horizontal line at $y=0.8$.
+
+```{r}
+
+x <- seq(-10, 20, length.out = 1000)
+#plot(x, pbinom(x, size = 15, prob = 0.8))
+
+par(mfrow = c(2,2))
+plot(x, pbinom(x, size = 15, prob = 0.99),
+     main = "CDF of Binomial with p = 0.99",
+     xlab = "x_values",
+     ylab = "cdf of Binnomial")
+plot(x, pbinom(x, size = 15, prob = 0.6))
+plot(x, pbinom(x, size = 15, prob = 0.4))
+plot(x, pbinom(x, size = 15, prob = 0.05))
+```
+
+Interpret the values of $x$ where the line $y=0.8$ intersects the graphs of the different cdf.
+YOUR ANSWER:
+
+# Poisson Distribution.
+
+## Probability Mass Functions
+
+We will plot the mass function for the Poison distribution Pois(mu).
+Note: 1) The values for this random variable are: 0, 1, 2, 3, ....
+2) The density plot will have a bar of height P(X=k), at the point 'k' on the x-axis.
+3) Since most of the densities will be concentrated at lower values of k, we will fix a large enough value of n, say n = 100, when drawing the density plots.
+3) In the plot include a vertical line at the expected value of Pois(mu).
+
+The following function is a first jab at writing a function to plot the pmf of the Poisson Distribution
+
+```{r}
+n <- 100 
+plot_pois_pmf <- function(mu){
+  x <- 0:n
+  pois <- dpois(x, lambda = mu)
+  plot(x, pois, type = "h", lwd = 5,
+       main = paste("Poisson density: mu = ", mu),
+       xlab = "x", ylab = "P(X=x)")
+  abline(v = mu, col = 'red', lwd = 4)
+}
+
+plot_pois_pmf(5)
+```
+
+For the following values of mu compute the plots for the pmf of the Poisson distribution: mu: 0.5, 1, 5, 8, 20, 50.
+Have all plots on the same frame.
+
+```{r}
+par(mfrow = c(2, 3))  
+
+plot_pois_pmf(0.5)
+plot_pois_pmf(1)
+plot_pois_pmf(5)
+plot_pois_pmf(8)
+plot_pois_pmf(20)
+plot_pois_pmf(50)
+
+
+
+```
+
+## Cumulative Distribution Functions
+
+Write a function 'plot_pois_cdf' that takes input $\mu$ and returns the plot of the cdf of the $\text{Pois}(\mu)$.
+
+```{r}
+plot_pois_cdf <- function(mu) {
+  x <- 0:ceiling(mu + 3 * sqrt(mu)) 
+  
+  cdf_vals <- ppois(x, lambda = mu)
+  
+  plot(x, cdf_vals, type = "s", lwd = 2,
+       main = paste("CDF of Pois(µ =", mu, ")"),
+       xlab = "x", ylab = "P(X ≤ x)",
+       ylim = c(0, 1))  
+  
+  abline(h = seq(0, 1, by = 0.1), col = "black", lty = "solid")
+}
+
+
+
+```
+
+For the following values of mu compute the plots for the pmf of the Poisson distribution: mu: 0.5, 1, 5, 8, 20, 50.
+Have all plots on the same frame.
+
+```{r}
+par(mfrow = c(2, 3))  
+
+plot_pois_cdf(.5)
+plot_pois_cdf(1)
+plot_pois_cdf(5)
+plot_pois_cdf(8)
+plot_pois_cdf(20)
+plot_pois_cdf(50)
+
+
+
+```
+
+# Comparing Poison with Binomial
+
+We say two random variables $X$ and $Y$ are identically distributed if they have the same cumulative distribution functions, that is $$ F_X(u) = F_Y(u) \quad \quad \forall x\in \mathbb{R}$$ We can use the Poisson distribution to approximate the Binomial distribution.
+Let's visualize it now:
+
+Plot the graphs of the cdf of $\text{Binom}(n=10, p=0.5)$ and $\text{Pois}(\mu= 5)$ on the same plot.
+
+```{r}
+
+plot_binom_pois_cdf <- function(n, p, mu) {
+  x_binom <- 0:n  #
+  cdf_binom <- pbinom(x_binom, size = n, prob = p)  
+
+  x_pois <- 0:ceiling(mu + 3 * sqrt(mu))  
+  cdf_pois <- ppois(x_pois, lambda = mu)  
+
+
+  plot(x_binom, cdf_binom, type = "s", lwd = 2, col = "blue",
+       main = paste("CDFs of Binomial and Poisson"),
+       xlab = "x", ylab = "P(X ≤ x)", ylim = c(0, 1))
+
+  lines(x_pois, cdf_pois, type = "s", lwd = 2, col = "red")
+  
+}
+
+plot_binom_pois_cdf(n = 10, p = 0.5, mu = 5)
+
+```
+
+Do the graphs overlap?
+Why/Why not?
+YOUR ANSWER: Yes, this show hows the Poisson distribution can estimate that if the binomial distribution.
+
+Now plot the graphs of the cdf of $\text{Binom}(n= 1000, p= 0.005)$ and $\text{Pois}(\mu= 5)$.
+
+```{r}
+plot_binom_pois_cdf(1000, 0.005, 5)
+
+```
+
+Do the graphs overlap?
+Why/Why not?
+YOUR ANSWER: Yes, since it is a larger range to estimate, although it does not overlap at the beginning.
+
+# Normal Distibution
+
+In this section we will explore the normal distribution.
+
+## Fixed mean, varying standard deviation
+
+### Plotting Densities
+
+Set $\mu = 5$.
+For values of $\sigma$ given by $0.2, 0.4, 0.8, 1, 1.3, 1.8, 2$, plot the densities of $N(\mu, \sigma)$ in the same plot.
+It might help if (1) you have the densities of $N(\mu = 5, \sigma = 0.2)$ and $N(\mu = 5, \sigma = 2)$ to be blue in color and the rest to be red.
+(2) choose appropriate limits for the x-axis (use x_lim parameter in the plot funtion) and y-axis (use y_lim).
+
+Method 1: Using 'plot' function from R-base
+
+```{r}
+mu <- 5
+sds <- c(0.4, 0.8, 1, 1.3, 1.8, 2)
+
+x <- seq(-6, 6, length.out = 1000)
+x <- 5+x
+y <- dnorm(x, mean = 5, sd=0.2)
+
+plot(x, y, 
+     type = 'l',
+     main= "Plot of Normal Density with mean 5")
+abline(v=5, h=0)
+for(std in sds){
+  y_temp <- dnorm(x, mean = 5, sd=std)
+  lines(x, y_temp,
+        type = 'l',
+        col = 'red')
+}
+```
+
+Method 2: Using ggplot
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+x <- seq(-6, 6, length.out = 1000)
+x <- 5+x
+```
+
+```{r}
+y_0.2 <- dnorm(x, mean= 5, sd = 0.2)
+y_0.4 <- dnorm(x, mean= 5, sd = 0.4)
+y_0.8 <- dnorm(x, mean= 5, sd = 0.8)
+y_1 <- dnorm(x, mean= 5, sd = 1)
+y_1.3 <- dnorm(x, mean= 5, sd = 1.3)
+y_1.8 <- dnorm(x, mean = 5, sd = 1.8)
+y_2 <- dnorm(x, mean= 5, sd = 2)
+
+plot_data_pdf <- data.frame(x,y_0.2,y_0.4,y_0.8,y_1,y_1.3, y_1.8, y_2)
+```
+
+```{r}
+plot_data_pdf_new <- pivot_longer(plot_data_pdf,
+                                  cols = c(y_0.2,y_0.4,y_0.8,y_1,y_1.3, y_1.8, y_2),
+                                  names_to = "std_devs"
+                                  )
+```
+
+```{r}
+ggplot(data = plot_data_pdf_new,
+  aes(x = x, 
+      y = value, 
+      group = std_devs,
+      color = std_devs))+
+  geom_line()+
+  labs(title = "Normal Density Plots: Varying Std Devs",
+       subtitle = "Jonathan Fernandes",
+       x = "x-axis", 
+       y = "density")
+
+```
+
+What do you notice about the plot?
+Comment about how the width changes.
+The width seems to be creater as it squeeces down, most likely to compensate for having the same area.
+
+### Plotting Cummulative Distribution Functions
+
+Set $\mu = 5$.
+For values of $\sigma$ given by $0.2, 0.4, 0.8, 1, 1.3, 1.8, 2$, plot the cummulative distribution function of $N(\mu, \sigma)$ in the same plot.
+It might help if (1) you have the cdf of $N(\mu = 5, \sigma = 0.2)$ and $N(\mu = 5, \sigma = 2)$ to be blue in color and the rest to be red.
+(2) choose appropriate limits for the x-axis (use x_lim parameter in the plot funtion) and y-axis (use y_lim).
+
+```{r}
+z_0.2 <- pnorm(x, mean= 5, sd = 0.2)
+z_0.4 <- pnorm(x, mean= 5, sd = 0.4)
+z_0.8 <- pnorm(x, mean= 5, sd = 0.8)
+z_1 <- pnorm(x, mean= 5, sd = 1)
+z_1.3 <- pnorm(x, mean= 5, sd = 1.3)
+z_1.8 <- pnorm(x, mean = 5, sd = 1.8)
+z_2 <- pnorm(x, mean= 5, sd = 2)
+
+plot_data_cdf <- data.frame(x,z_0.2,z_0.4,z_0.8,z_1,z_1.3, z_1.8, z_2)
+```
+
+```{r}
+plot_data_cdf_new <- pivot_longer(plot_data_cdf,
+                                  cols = c(z_0.2,z_0.4,z_0.8,z_1,z_1.3, z_1.8, z_2),
+                                  names_to = "std_devs"
+                                  )
+```
+
+```{r}
+ggplot(data = plot_data_cdf_new,
+  aes(x = x, 
+      y = value, 
+      group = std_devs,
+      color = std_devs))+
+  geom_line()+
+  labs(title = "Normal Density Plots: Varying Std Devs",
+       x = "x-axis", 
+       y = "density")
+
+```
+
+What information does the point of intersection of two cdfs give us?
+Lets us see equivalent probabilities which allows us to visualize when one is lower than the other.
+
+## Varying mean, fixed standard deviation 
+
+### Plotting Densities
+
+Set $\sigma = 0.4$.
+For values of $\mu$ given by $-1, -0.5, 0, 0.4, 0.9, 2.5, 4$ plot the densities of $N(\mu, \sigma)$ in the same plot.
+You might need to choose appropriate limits for the x-axis.
+
+```{r}
+library(ggplot2)
+
+plot_normal_density <- function(mu_values, sigma) {
+  x_values <- seq(-3, 5, length.out = 1000)
+  
+  density_data <- data.frame(
+    x = rep(x_values, length(mu_values)),
+    mu = rep(mu_values, each = length(x_values)),
+    density = unlist(lapply(mu_values, function(mu) dnorm(x_values, mean = mu, sd = sigma)))
+  )
+  
+  # Plot
+  ggplot(density_data, aes(x = x, y = density, color = as.factor(mu))) +
+    geom_line(size = 1) +
+    labs(title = "Density Functios of N(μ, σ)", x = "x", y = "Density", color = "μ") +
+    xlim(-3, 5) +  
+    ylim(0, 1) +   
+    theme_minimal() +
+    theme(legend.position = "bottom")
+}
+
+mu_values <- c(-1, -0.5, 0, 0.4, 0.9, 2.5, 4)
+sigma <- 0.4
+plot_normal_density(mu_values, sigma)
+
+
+
+```
+
+### Plotting Cummulative Distribution Functions
+
+Set $\sigma = 0.4$.
+For values of $\mu$ given by $-1, -0.5, 0, 0.4, 0.9, 2.5, 4$ plot the cumulative distribution functions of $N(\mu, \sigma)$ in the same plot.
+You might need to choose appropriate limits for the x-axis.
+
+```{r}
+sigma <- c(-1, -0.5, 0, 0.4, 0.9, 2.5, 4)
+mu_value <- 0.4
+plot_normal_density(mu_value, sigma)
+
+```
+
+# Exponential Distribution
+
+## Probablity Density Function
+
+For values of $\lambda$ in $(0.2, 0.5, 1, 2, 8, 10)$ plot the graphs of the densities of $\text{Exp}(\lambda)$ in the same plot.
+
+```{r}
+lambda_values <- c(0.2, 0.5, 1, 2, 8, 10)
+
+x_values <- seq(0, 5, length.out = 1000)
+
+plot(x_values, pexp(x_values, rate = lambda_values[1]), type = "l", 
+     col = "black", ylim = c(0, 1), 
+     xlab = "x", ylab = "CDF", 
+     main = "CDF of Exponential Distribution")
+
+for (lambda in lambda_values[-1]) {
+  lines(x_values, pexp(x_values, rate = lambda), col = rainbow(length(lambda_values))[which(lambda_values == lambda)])
+}
+
+abline(h = 0.8, col = "red", lty = 2)
+
+
+
+```
+
+## Cummulative Distribution Function
+
+For values of $\lambda$ in $(0.2, 0.5, 1, 2, 8, 10)$ plot the graphs of the cumulative distribution function of $\text{Exp}(\lambda)$ in the same plot.
+Draw a horizontal line at $y=0.8$.
+
+```{r}
+plot_exp_cdf <- function(lambda_values) {
+  x_values <- seq(0, 5, length.out = 1000)
+
+  # Set up the plot
+  plot(x_values, pexp(x_values, rate = lambda_values[1]), type = "l", 
+       col = "blue", ylim = c(0, 1), 
+       xlab = "x", ylab = "CDF", 
+       main = "CDF of Exponential Distribution")
+
+  for (lambda in lambda_values[-1]) {
+    lines(x_values, pexp(x_values, rate = lambda), col = rainbow(length(lambda_values))[which(lambda_values == lambda)])
+  }
+
+  abline(h = 0.8, col = "red", lty = 2)
+}
+
+plot_exp_cdf(c(0.2, 0.5, 1, 2, 8, 10))
+
+
+```
+
+Interpret the values of $x$ where the line $y=0.8$ intersects with the graphs of the cdfs.
+YOUR ANSWER: 80% of the distribution is
+
+# Gamma Distibution
+
+We will plot the Gamma distribution for different shapes and scales.
+You might need to adjust the limits of x and y axes appropriately.
+
+## Different Shapes
+
+For values of $\alpha \in (0.3,0.7, 1, 1.5, 2, 2.5, 10)$, plot the Plot the densities of $\text{Gamma}(\alpha, \beta = 1)$ in a single plot.
+
+```{r}
+x <- seq(0, 10, length.out = 1000)
+```
+
+```{r}
+y_0.3 <- dgamma(x, shape = 0.3, scale = 1)
+y_0.7 <- dgamma(x, shape = 0.7, scale = 1)
+y_1 <- dgamma(x, shape = 1, scale = 1)
+y_1.5 <- dgamma(x, shape = 1.5, scale = 1)
+y_2 <- dgamma(x, shape = 2, scale = 1)
+y_2.5 <- dgamma(x, shape = 2.5, scale = 1)
+#y_10 <- dgamma(x, shape = 10, scale = 1)
+
+plot_data_pdf <- data.frame(x,y_1,y_1.5,y_2, y_2.5)
+```
+
+```{r}
+plot_data_pdf_new <- pivot_longer(plot_data_pdf,
+                                  cols = c(y_1,y_1.5,y_2, y_2.5),
+                                  names_to = "shapes"
+                                  )
+```
+
+```{r}
+ggplot(data = plot_data_pdf_new,
+  aes(x = x, 
+      y = value, 
+      group = shapes,
+      color = shapes))+
+  geom_line()+
+  labs(title = "Gamma Density Plots: Varying Shapes",
+       x = "x-axis", 
+       y = "density")
+
+```
+
+For each of the shapes, identify a feature that distinguishes one shape from the other.
+This to consider a: does it have a peak, concavity, presence of inflection points, ect.
+YOUR RESPONSE:
+
+## $\alpha =1$ , varying scales
+
+Set $\alpha = 1$, vary $\beta$ over $0.2, 0.6, 1, 1.5, 2$.
+Plot the densities of $\text{Gamma}(\alpha, \beta)$ in a single plot.
+
+```{r}
+plot_gamma_density <- function(alpha, beta_values) {
+  x <- seq(0, 15, by = 0.01)  
+  
+  plot(x, dgamma(x, shape = alpha, rate = beta_values[1]), type = "n", 
+       xlab = "x", ylab = "Density", 
+       main = paste("Gamma Distribution Density for alpha =", alpha),
+       ylim = c(0, 1))
+  
+  for (beta in beta_values) {
+    lines(x, dgamma(x, shape = alpha, rate = beta), 
+          col = rainbow(length(beta_values))[which(beta_values == beta)], 
+          lwd = 2)
+  }
+
+}
+  beta_values <- c(0.2, 0.6, 1, 1.5, 2)
+  plot_gamma_density(1, beta_values)
+
+```
+
+## $\alpha =0.6$ , varying scales
+
+Set $\alpha = 0.6$, vary $\beta$ over $0.2, 0.6, 1, 1.5, 2$.
+Plot the densities of $\text{Gamma}(\alpha, \beta)$ in a single plot.
+
+```{r}
+
+beta_values <- c(0.2, 0.6, 1, 1.5, 2)
+  plot_gamma_density(.6, beta_values)
+```
+
+## $\alpha = 2$ , varying scales
+
+Set $\alpha = 2$, vary $\beta$ over $0.2, 0.6, 1, 1.5, 2$.
+Plot the densities of $\text{Gamma}(\alpha, \beta)$ in a single plot.
+
+```{r}
+beta_values <- c(0.2, 0.6, 1, 1.5, 2)
+  plot_gamma_density(2, beta_values)
+```
+
+## $\alpha = 5$ , varying scales
+
+Set $\alpha = 5$, vary $\beta$ over $0.2, 0.6, 1, 1.5, 2$.
+Plot the densities of $\text{Gamma}(\alpha, \beta)$ in a single plot.
+
+```{r}
+beta_values <- c(0.2, 0.6, 1, 1.5, 2)
+  plot_gamma_density(5, beta_values)
+
+```

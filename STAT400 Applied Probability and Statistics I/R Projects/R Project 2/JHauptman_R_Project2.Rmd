@@ -1,0 +1,317 @@
+---
+title: "Random Samples, Sampling Distributions, Central Limit Theorem"
+author: "Student_Name/University ID"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes  
+  pdf_document:
+    toc: yes
+---
+
+In this project, we will work with the sampling distributions of statistics and the Central Limit Theorem (CLT).\
+Have fun, and good luck! (This was not fun at all)
+
+# Random Samples
+
+## Binomial Distibution
+
+Consider the Binomial distribution $\text{Binom}(n=10, p = 0.8)$. We will get random samples from this distribution and check out the histograms for each of these samples. We expect that as the sample size increases, the sample distribution will provide an increasingly improved approximation of the the true distribution.
+
+### Probability Mass Function of $\text{Binom}(n=10, p = 0.8)$..
+
+Plot the probability mass function of $\text{Binom}(n=10, p = 0.8)$.
+
+```{r}
+n <- 10
+p <- 0.8
+x <- 0:n
+
+pmf <- dbinom(x, size = n, prob = p)
+
+barplot(
+  pmf,
+  names.arg = x,
+  col = "lightgreen",
+  border = "black",
+  main = "PMF of Binom(n=10, p=0.8)",
+  xlab = "x",
+  ylab = "Probability"
+)
+abline(h = 0, col = "black", lwd = 2)
+```
+
+### Sample distributions
+
+For the sample sizes $4, 7, 10, 15, 20, 30, 40, 80, 1000$ get random samples of respective size, and plot the histograms for each of these samples.
+
+```{r}
+samp_sizes <- c(4, 7, 10, 15, 20, 30, 40, 80, 1000)
+
+par(mfrow = c(3, 3))
+
+for (size in samp_sizes) {
+  data <- rbinom(size, 10, 0.8)
+  
+  hist(
+    data,
+    breaks = 10,
+    col = "lightgreen",
+    border = "black",
+    main = paste("Sample Binom, sample size =", size),
+    xlab = "x",
+    ylab = "Tally",
+    ylim = c(0, max(table(data)))
+  )
+}
+```
+
+WHAT DO YOU NOTICE? The larger the sample size the more the histogram has a less irregular shape and looks more like a normal distribution curve.
+
+## Gamma Distribution
+
+Consider the Gamma distribution $\text{Gamma}(\alpha = 4, \beta = 2)$. We will get random samples from this distribution and check out the histograms for each of these samples. We expect that as the sample size increases, the sample distribution will provide an increasingly improved approximation of the the true distribution.
+
+### Density of $\text{Gamma}(\alpha = 4, \beta = 2)$.
+
+Plot the density curve of $\text{Gamma}(\alpha = 4, \beta = 2)$,
+
+```{r}
+alpha <- 4
+beta <- 2
+
+x_vals <- seq(0, 20, length.out = 1000)
+
+density_vals <- dgamma(x_vals, shape = alpha, rate = 1 / beta)
+
+plot(x_vals, density_vals, type = "l", col = "darkred", 
+     main = "PDF of Gamma(α = 4, β = 2)",
+     xlab = "x", ylab = "Probability Density", lwd = 2)
+```
+
+### Sample distributions
+
+For the sample sizes $4, 7, 10, 15, 20, 30, 40, 80, 1000$ get random samples of respective size, and plot the histograms for each of these samples.
+
+```{r}
+alpha <- 4
+beta <- 2
+
+x_vals <- seq(0, 20, length.out = 1000)
+density_vals <- dgamma(x_vals, shape = alpha, rate = 1 / beta)
+
+sample_sizes <- c(4, 7, 10, 15, 20, 30, 40, 80, 1000)
+
+par(mfrow=c(3, 3), mar=c(4, 4, 2, 1))
+
+for (size in sample_sizes) {
+  sample <- rgamma(size, shape = alpha, rate = 1 / beta)
+  
+  hist(sample, 
+       main=paste("Sample Size =", size), 
+       xlab="Value", 
+       ylab="Tally", 
+       col="lightgreen", 
+       border="black", 
+       breaks=10, 
+       probability = TRUE) 
+}
+
+par(mfrow=c(1, 1))
+
+```
+
+WHAT DO YOU NOTICE? As the sample size increases the function goes into a normal distribution shape.
+
+# Sampling Distribution of Sample Max
+
+## Discrete Uniform distribution
+
+Suppose we are working with the discrete uniform random variable taking values $\{1, 2, 3, 4, 5, 6\}$.
+
+Plot the pmf of the given discrete distribution
+
+```{r}
+x_vals <- 1:6
+
+prob_vals <- rep(1/length(x_vals), length(x_vals))
+
+plot(x_vals, prob_vals, type = "n", 
+     main = "PMF of Discrete Uniform Distribution",
+     xlab = "x", ylab = "Probability", 
+     ylim = c(0, 1), xaxt = "n", xlim = c(0.5, 6.5))
+
+rect(0.5, 0, 6.5, 1/6, 
+     col = "lightgreen", border = "black")
+
+axis(1, at = x_vals)
+
+```
+
+Define a function "disc_samp" that takes input "n" and returns a random sample of size "n" from this distribution.
+
+```{r}
+disc_samp <- function(n) {
+  sample(1:6, size = n, replace = TRUE)
+}
+```
+
+Use the "disc_samp" function and the replicate function to to get the histograms for the sampling distribution of the sample max when working with sample sizes $n = 1, 2, 3, 4,5, 15$. Be sure to have appropriate titles for your histograms.
+
+```{r}
+reps <- 1000
+
+sample_sizes <- c(1, 2, 3, 4, 5, 15)
+
+par(mfrow = c(2, 3))
+
+for (n in sample_sizes) {
+  sample_maxs <- replicate(reps, max(disc_samp(n)))
+  
+  hist(sample_maxs, breaks = seq(0.5, 6.5, by = 1), 
+       main = paste("n =", n),
+       xlab = "Sample Max", ylab = "Tally", 
+       col = "lightgreen", border = "black", 
+       xlim = c(0.5, 6.5), ylim = c(0, max(table(sample_maxs)) + 50))
+}
+```
+
+WHAT DO YOU NOTICE? As n increases the sample max accumulates around to a sample max of 6 which makes sense since 6 is the largest compared to the other maxes.
+
+## A Skewed Discrete Distribution
+
+Suppose we are working with the discrete random variable taking values $\{1, 2, 3, 4, 5, 6\}$ and having the following probability mass function: $$p(1) = 0.5, \quad  p(2) = p(3) = \cdots = p(6) = 0.1$$
+
+Plot the pmf of the given discrete distribution
+
+```{r}
+x_vals <- 1:6
+prob_vals <- c(0.5, 0.1, 0.1, 0.1, 0.1, 0.1)
+
+barplot(prob_vals, names.arg = x_vals, col = "lightgreen", 
+        main = "PMF of the Discrete Distribution", 
+        xlab = "x", ylab = "Probability", 
+        ylim = c(0, 1), border = "black")
+
+```
+
+Define a function "disc_samp_1" that takes input "n" and returns a random sample of size "n" from this distribution.
+
+```{r}
+disc_samp_1 <- function(n) {
+  x_vals <- 1:6
+  prob_vals <- c(0.5, 0.1, 0.1, 0.1, 0.1, 0.1)
+  sample(x_vals, size = n, replace = TRUE, prob = prob_vals)
+}
+```
+
+Use the "disc_samp_1" function and the replicate function to to get the histograms for the sampling distribution of the sample max when working with sample sizes $n = 1, 2, 3, 4,5 15$. Be sure to have appropriate titles for your histograms.
+
+```{r}
+sample_sizes <- c(1, 2, 3, 4, 5, 15)
+
+par(mfrow = c(2, 3)) 
+
+for (n in sample_sizes) {
+  sample_maxs <- replicate(1000, max(disc_samp_1(n)))
+  
+  hist(sample_maxs, breaks = 6, main = paste("Sample Max Distribution (n =", n, ")"), 
+       xlab = "Sample Max", ylab = "Tally", col = "lightgreen", border = "black")
+}
+
+```
+
+WHAT DO YOU NOTICE? As expected, as n increases the sample maxes accumulate at 6 since 6 is larger than the others, however at the start it tends the opposite way.
+
+# Central Limit Theorem
+
+## Exponential Distribution
+
+Suppose we are working with a population that has the exponential distibution with $\lambda = 2$.
+
+Use the replicate function to get the histograms for the sampling distribution of the sample mean when working with sample sizes $n = 1, 2, 3, 4, 15, 500$. Be sure to have appropriate titles for your histograms.
+
+```{r}
+samp_sizes  <- c(1, 2, 3, 4, 15, 500, 1000)
+
+par(mfrow=c(2,2))
+for(size in samp_sizes){
+  replicates <- replicate(10000, {
+    mean(rexp(size, rate = 5))
+  })
+  hist(replicates, breaks = 100,
+       main = paste("Samp Dist for Exp, samp size =", size ))
+}
+```
+
+WHAT DO YOU NOTICE? Like all the other questions, as the sample size increases, the distribution takes on a more normla distribution which is expected by CLT.
+
+## Discrete Uniform distibution
+
+Suppose we are working with the discrete uniform random variable taking values $\{1, 2, 3, 4, 5, 6\}$.
+
+Define a function "disc_samp" that takes input "n" and returns a random sample of size "n" from this distribution.
+
+```{r}
+disc_samp <- function(n) {
+  x_vals <- 1:6
+  
+  sample(x_vals, size = n, replace = TRUE)
+}
+```
+
+Use the "disc_samp" function and the replicate function to to get the histograms for the sampling distribution of the sample mean when working with sample sizes $n = 1, 2, 3, 4, 15, 500$. Be sure to have appropriate titles for your histograms.
+
+```{r}
+samp_sizes <- c(1, 2, 3, 4, 15, 500)
+
+par(mfrow = c(2, 3))
+
+for (size in samp_sizes) {
+  sample_means <- replicate(10000, {
+    mean(disc_samp(size))
+  })
+  
+  hist(sample_means, breaks = 30, 
+       main = paste("Sample Mean Distribution (n =", size, ")"),
+       xlab = "Sample Mean", ylab = "Tally", 
+       col = "lightgreen", border = "black")
+}
+
+```
+
+WHAT DO YOU NOTICE? As n increases the distribution takes on a form of a normal distribution.
+
+## Continuous Uniform distibution
+
+Suppose we are working with the Continuous uniform random variable taking values on $(0,1)$.
+
+Define a function "cont_uni_samp" that takes input "n" and returns a random sample of size "n" from this distribution.
+
+```{r}
+cont_uni_samp <- function(n) {
+  runif(n, min = 0, max = 1)
+}
+```
+
+Use the "cont_uni_samp" function and the replicate function to to get the histograms for the sampling distribution of the sample mean when working with sample sizes $n = 1, 2, 3, 4, 15, 500$. Be sure to have appropriate titles for your histograms.
+
+```{r}
+samp_sizes <- c(1, 2, 3, 4, 15, 500)
+
+par(mfrow = c(2, 3))
+
+for (size in samp_sizes) {
+  sample_means <- replicate(10000, {
+    mean(cont_uni_samp(size))
+  })
+  
+  hist(sample_means, breaks = 30, 
+       main = paste("Sample Mean Distribution (n =", size, ")"),
+       xlab = "Sample Mean", ylab = "Tally", 
+       col = "lightgreen", border = "black")
+}
+
+```
+
+WHAT DO YOU NOTICE? As n increases the distribution takes on a normal distribution's curve.
